@@ -1,0 +1,23 @@
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<resources>
+    <string name="appName">Ether Focus</string>
+    <string name="user">User</string>
+    <string name="loginTitle">Welcome back</string>
+    <string name="loginSubtitle">Enter your credentials to continue your deep work session.</string>
+    <string name="emailLabel">Email Address</string>
+    <string name="emailPlaceholder">name@domain.com</string>
+    <string name="passwordLabel">Password</string>
+    <string name="passwordPlaceholder">••••••••</string>
+    <string name="forgotPassword">Forgot?</string>
+    <string name="continueButton">Continue to Sanctuary</string>
+    <string name="orAccessWith">Or access with</string>
+    <string name="google">Google</string>
+    <string name="apple">Apple</string>
+    <string name="newToVoid">New to the void? </string>
+    <string name="createAccount">Create an account</string>
+    <string name="activeInVoid">Active in the void right now</string>
+    <string name="desktopHeroTitleOne">Return to your</string>
+    <string name="desktopHeroTitleTwo">Sanctuary of Flow.</string>
+    <string name="desktopHeroSubtitle">Minimize the noise. Maximize the intent. Join thousands of creators in the digital void where deep work becomes effortless.</string>
+    <string name="copyright">© 2024 Ether Focus. Digital Sanctuary for Deep Work.</string>
+</resources>
