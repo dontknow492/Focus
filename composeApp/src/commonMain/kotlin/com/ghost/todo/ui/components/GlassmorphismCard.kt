@@ -1,32 +1,32 @@
 package com.ghost.todo.ui.components
 
-import androidx.compose.foundation.Indication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ripple
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -78,77 +78,113 @@ fun GlassmorphismCard(
 }
 
 
-
-
 @Composable
 fun AdvancedGlassmorphismCard(
     modifier: Modifier = Modifier,
     shape: Shape = RoundedCornerShape(28.dp),
-    backgroundColor: Color = Color.White.copy(alpha = 0.15f),
-    borderColor: Color = Color.White.copy(alpha = 0.25f),
+
+    // 🔥 Now theme-driven by default
+    backgroundColor: Color = Color.Unspecified,
+    borderColor: Color = Color.Unspecified,
+    shadowColor: Color = Color.Unspecified,
+
     borderWidth: Dp = 1.dp,
     blurRadius: Dp = 12.dp,
     shadowElevation: Dp = 12.dp,
-    shadowColor: Color = Color.Black.copy(alpha = 0.15f),
+
     innerPadding: Dp = 20.dp,
-    gradientColors: List<Color> = listOf(
-        Color.White.copy(alpha = 0.2f),
-        Color.White.copy(alpha = 0.05f)
-    ),
+
+    gradientColors: List<Color> = emptyList(),
     gradientAngle: Float = 40f,
-    cardAlpha: Float = 1f, // NEW: Control whole card transparency
+
+    cardAlpha: Float = 1f,
+
     enableInnerGlow: Boolean = true,
-    innerGlowColor: Color = Color.White.copy(alpha = 0.1f),
+    innerGlowColor: Color = Color.Unspecified,
     innerGlowAlpha: Float = 1f,
     innerGlowWidth: Dp = 40.dp,
+
     enableHoverEffect: Boolean = false,
     hoverElevation: Dp = 16.dp,
+
     onClick: (() -> Unit)? = null,
+
     content: @Composable () -> Unit
 ) {
+    val isDark = isSystemInDarkTheme()
+    val colorScheme = MaterialTheme.colorScheme
+
+    // ✅ Resolve colors safely
+    val resolvedBackground = if (backgroundColor == Color.Unspecified) {
+        if (isDark) colorScheme.surface.copy(alpha = 0.3f)
+        else colorScheme.surface.copy(alpha = 0.6f)
+    } else backgroundColor
+
+    val resolvedBorder = if (borderColor == Color.Unspecified) {
+        if (isDark) Color.White.copy(alpha = 0.2f)
+        else Color.Black.copy(alpha = 0.1f)
+    } else borderColor
+
+    val resolvedShadow = if (shadowColor == Color.Unspecified) {
+        Color.Black.copy(alpha = if (isDark) 0.4f else 0.15f)
+    } else shadowColor
+
+    val resolvedGlow = if (innerGlowColor == Color.Unspecified) {
+        if (isDark) Color.White.copy(alpha = 0.08f)
+        else Color.White.copy(alpha = 0.15f)
+    } else innerGlowColor
+
+    // ✅ Gradient
+    val colors = if (gradientColors.isNotEmpty()) {
+        gradientColors
+    } else {
+        if (isDark) {
+            listOf(
+                resolvedBackground.copy(alpha = 0.4f),
+                resolvedBackground.copy(alpha = 0.1f)
+            )
+        } else {
+            listOf(
+                resolvedBackground.copy(alpha = 0.3f),
+                resolvedBackground.copy(alpha = 0.05f)
+            )
+        }
+    }
+
     val density = LocalDensity.current
     val interactionSource = remember { MutableInteractionSource() }
     val isHovered by interactionSource.collectIsHoveredAsState()
 
-    val currentElevation = if (enableHoverEffect && isHovered) hoverElevation else shadowElevation
-    val currentBorderColor = if (enableHoverEffect && isHovered) {
-        borderColor.copy(alpha = borderColor.alpha * 1.5f)
-    } else borderColor
+    val currentElevation =
+        if (enableHoverEffect && isHovered) hoverElevation else shadowElevation
+
+    val currentBorderColor =
+        if (enableHoverEffect && isHovered) {
+            resolvedBorder.copy(alpha = resolvedBorder.alpha * 1.5f)
+        } else resolvedBorder
+
+    val radians = Math.toRadians(gradientAngle.toDouble()).toFloat()
 
     val gradientStartOffset = remember(gradientAngle) {
-        val radians = Math.toRadians(gradientAngle.toDouble()).toFloat()
-        Offset(
-            x = (cos(radians) + 1) / 2,
-            y = (sin(radians) + 1) / 2
-        )
+        Offset(cos(radians), sin(radians))
     }
 
     val gradientEndOffset = remember(gradientAngle) {
-        val radians = Math.toRadians((gradientAngle + 180).toDouble()).toFloat()
-        Offset(
-            x = (cos(radians) + 1) / 2,
-            y = (sin(radians) + 1) / 2
-        )
+        Offset(-cos(radians), -sin(radians))
     }
 
     Box(
         modifier = modifier
-            .then(
-                if (onClick != null) {
-                    Modifier.clickable(
-                        interactionSource = interactionSource,
-                        indication = rememberRippleEffect(
-                            bounded = true,
-                            radius = 40.dp,
-                            color = borderColor
-                        )
-                    ) { onClick() }
-                } else Modifier
+            .shadow(
+                elevation = currentElevation,
+                shape = shape,
+                spotColor = resolvedShadow.copy(alpha = resolvedShadow.alpha * cardAlpha),
+                ambientColor = resolvedShadow.copy(alpha = resolvedShadow.alpha * cardAlpha)
             )
             .clip(shape)
             .background(
                 brush = Brush.linearGradient(
-                    colors = gradientColors.map { it.copy(alpha = it.alpha * cardAlpha) },
+                    colors = colors.map { it.copy(alpha = it.alpha * cardAlpha) },
                     start = gradientStartOffset,
                     end = gradientEndOffset
                 )
@@ -158,24 +194,29 @@ fun AdvancedGlassmorphismCard(
                 color = currentBorderColor.copy(alpha = currentBorderColor.alpha * cardAlpha),
                 shape = shape
             )
-            .shadow(
-                elevation = currentElevation,
-                shape = shape,
-                spotColor = shadowColor.copy(alpha = shadowColor.alpha * cardAlpha),
-                ambientColor = shadowColor.copy(alpha = shadowColor.alpha * cardAlpha),
-                clip = false
+            .then(
+                if (onClick != null) {
+                    Modifier.clickable(
+                        interactionSource = interactionSource,
+                        indication = ripple(
+                            bounded = true,
+                            color = resolvedBorder
+                        )
+                    ) { onClick() }
+                } else Modifier
             )
             .drawBehind {
                 if (enableInnerGlow) {
-                    val cornerRadiusPx = shape.toPx(cornerRadius = 28.dp, size = size, density = density)
-                    val glowWidthPx = with(density) { innerGlowWidth.toPx() }
+                    val glowWidthPx = innerGlowWidth.toPx()
+                    val cornerRadiusPx = getCornerRadiusInPx(shape, size, density, 28.dp)
 
-                    // Draw smooth gradient blend with adjustable alpha
                     drawRoundRect(
                         brush = Brush.linearGradient(
                             colors = listOf(
-                                innerGlowColor.copy(alpha = innerGlowColor.alpha * innerGlowAlpha * cardAlpha),
-                                innerGlowColor.copy(alpha = 0f)
+                                resolvedGlow.copy(
+                                    alpha = resolvedGlow.alpha * innerGlowAlpha * cardAlpha
+                                ),
+                                resolvedGlow.copy(alpha = 0f)
                             ),
                             start = Offset(0f, 0f),
                             end = Offset(glowWidthPx, glowWidthPx)
@@ -187,56 +228,121 @@ fun AdvancedGlassmorphismCard(
             }
     ) {
         Box(
-            modifier = Modifier
-                .padding(innerPadding)
-                .then(
-                    if (blurRadius > 0.dp) {
-                        Modifier.drawWithContent {
-                            drawContent()
-                            drawRoundRect(
-                                color = Color.White.copy(alpha = 0.05f * cardAlpha),
-                                cornerRadius = CornerRadius(shape.toPx(cornerRadius = 28.dp, size = size, density = density)),
-                                blendMode = BlendMode.Screen
-                            )
-                        }
-                    } else Modifier
-                )
+            modifier = Modifier.padding(innerPadding)
         ) {
             content()
         }
     }
 }
 
-
-
-
-// Extension function to convert Shape to corner radius in pixels
-private fun Shape.toPx(cornerRadius: Dp, size: Size, density: Density): Float {
-    return when (this) {
+// Helper function to get corner radius in pixels
+private fun getCornerRadiusInPx(shape: Shape, size: Size, density: Density, defaultRadius: Dp): Float {
+    return when (shape) {
         is RoundedCornerShape -> {
-            val topStart = topStart.toPx(size, density)
-            val topEnd = topEnd.toPx(size, density)
-            val bottomEnd = bottomEnd.toPx(size, density)
-            val bottomStart = bottomStart.toPx(size, density)
+            val topStart = shape.topStart.toPx(size, density)
+            val topEnd = shape.topEnd.toPx(size, density)
+            val bottomEnd = shape.bottomEnd.toPx(size, density)
+            val bottomStart = shape.bottomStart.toPx(size, density)
             listOf(topStart, topEnd, bottomEnd, bottomStart).maxOrNull()
-                ?: with(density) { cornerRadius.toPx() }
+                ?: with(density) { defaultRadius.toPx() }
         }
-        else -> with(density) { cornerRadius.toPx() }
+
+        else -> with(density) { defaultRadius.toPx() }
     }
 }
 
 
-
-// Enhanced ripple effect with better customization
+@Preview(showBackground = false)
 @Composable
-private fun rememberRippleEffect(
-    bounded: Boolean = true,
-    radius: Dp = 40.dp,
-    color: Color = Color.White.copy(alpha = 0.3f)
-): Indication {
-    return ripple(
-        bounded = bounded,
-        radius = radius,
-        color = color
-    )
+fun GlassmorphismCardPreview() {
+    // Red glassmorphism card
+    MaterialTheme {
+        Column {
+            AdvancedGlassmorphismCard(
+                backgroundColor = Color.Red.copy(alpha = 0.15f),
+                borderColor = Color.Red.copy(alpha = 0.3f),
+                gradientColors = listOf(
+                    Color.Red.copy(alpha = 0.2f),
+                    Color.Red.copy(alpha = 0.05f)
+                ),
+                innerGlowColor = Color.Red.copy(alpha = 0.15f),
+                shadowColor = Color.Black.copy(alpha = 0.2f)
+            ) {
+                Text("Red Card", color = Color.White)
+            }
+
+// Blue glassmorphism card
+            AdvancedGlassmorphismCard(
+                backgroundColor = Color.Blue.copy(alpha = 0.15f),
+                borderColor = Color.Cyan.copy(alpha = 0.3f),
+                gradientColors = listOf(
+                    Color.Blue.copy(alpha = 0.2f),
+                    Color(0xFF1A237E).copy(alpha = 0.1f)
+                ),
+                innerGlowColor = Color.Cyan.copy(alpha = 0.2f)
+            ) {
+                Text("Blue Card", color = Color.White)
+            }
+
+// Purple gradient card
+            AdvancedGlassmorphismCard(
+                gradientColors = listOf(
+                    Color(0xFF9C27B0).copy(alpha = 0.3f),
+                    Color(0xFFE040FB).copy(alpha = 0.1f),
+                    Color(0xFF7B1FA2).copy(alpha = 0.05f)
+                ),
+                borderColor = Color(0xFFE040FB).copy(alpha = 0.4f),
+                innerGlowColor = Color(0xFFE040FB).copy(alpha = 0.2f),
+                gradientAngle = 135f
+            ) {
+                Text("Purple Gradient Card", color = Color.White)
+            }
+
+// Dark theme custom card
+            AdvancedGlassmorphismCard(
+                backgroundColor = Color(0xFF1A1A1A).copy(alpha = 0.8f),
+                borderColor = Color(0xFF4CAF50).copy(alpha = 0.5f),
+                gradientColors = listOf(
+                    Color(0xFF2E7D32).copy(alpha = 0.3f),
+                    Color(0xFF1B5E20).copy(alpha = 0.1f)
+                ),
+                innerGlowColor = Color(0xFF4CAF50).copy(alpha = 0.15f),
+                shadowColor = Color.Magenta.copy(alpha = 0.1f)
+
+            ) {
+                Text("Custom Dark Green Card", color = Color.White, modifier = Modifier.background(Color.Transparent))
+            }
+
+
+        }
+    }
+
+}
+
+
+@Preview(showBackground = true)
+@Composable
+fun GlassmorphismCardPreview2() {
+    // Red glassmorphism card
+    Column(
+        modifier = Modifier.background(Color.Blue)
+    ) {
+        MaterialTheme(
+            colorScheme = lightColorScheme(),
+        ) {
+            AdvancedGlassmorphismCard {
+                Text("Light Card")
+            }
+        }
+        MaterialTheme(
+            colorScheme = darkColorScheme(),
+        ) {
+            AdvancedGlassmorphismCard {
+                Text("Dark Card")
+            }
+        }
+
+
+    }
+
 }

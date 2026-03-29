@@ -20,4 +20,36 @@
     <string name="desktopHeroTitleTwo">Sanctuary of Flow.</string>
     <string name="desktopHeroSubtitle">Minimize the noise. Maximize the intent. Join thousands of creators in the digital void where deep work becomes effortless.</string>
     <string name="copyright">© 2024 Ether Focus. Digital Sanctuary for Deep Work.</string>
+
+    <string name="heroTitleLine1">Reclaim your</string>
+    <string name="heroTitleLine2">cognitive flow.</string>
+    <string name="heroSubtitle">Enter the digital sanctuary designed for deep work. Where every pixel is tuned to your focus, and every interaction serves your intent.</string>
+    <string name="badgeText">AESTHETIC PRECISION</string>
+    <string name="createAccountTitle">Create Account</string>
+    <string name="createAccountSubtitle">Join the ecosystem of focused minds.</string>
+    <string name="nameLabel">User Name</string>
+    <string name="namePlaceholder">Enter your alias</string>
+    <string name="confirmPasswordLabel">Confirm Key</string>
+    <string name="registerButton">Begin Your Journey</string>
+    <string name="alreadyHaveAccount">Already have a sanctuary? </string>
+    <string name="loginText">Login</string>
+    <string name="socialSync">Social Sync</string>
+
+
+    <string name="restoreDesktopHeroTitleLine1">Find clarity in the</string>
+    <string name="restoreDesktopHeroTitleLine2">unseen.</string>
+    <string name="restoreDesktopHeroSubtitle">The Ethereal Productivity Framework helps you reclaim your mental space through curated focus sessions and organic task flows.</string>
+    <string name="restoreTitle">Restore Your Sanctuary</string>
+    <string name="restoreSubtitle">Lost your path? Enter the identifier associated with your account and we will send instructions to reset your security key.</string>
+    <string name="sendRecoveryButton">Send Recovery Link</string>
+    <string name="backToLogin">Back to Login</string>
+    <string name="successTitle">Transmission Sent</string>
+    <string name="successMessage">If an account exists for this identifier, a recovery link has been sent to the void. Please check your inbox.</string>
+    <string name="versionText">The Ethereal Productivity Framework • v2.0</string>
+
+
+    <string name="next">Next</string>
+    <string name="done">Done</string>
+
+
 </resources>

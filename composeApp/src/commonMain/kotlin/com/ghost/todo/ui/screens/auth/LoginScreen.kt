@@ -1,4 +1,4 @@
-package com.ghost.todo.ui.screens
+package com.ghost.todo.ui.screens.auth
 
 
 import androidx.compose.foundation.Image
@@ -15,7 +15,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.BlurredEdgeTreatment
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -27,31 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import com.ghost.todo.resources.Res
-import com.ghost.todo.resources.activeInVoid
-import com.ghost.todo.resources.appName
-import com.ghost.todo.resources.apple
-import com.ghost.todo.resources.continueButton
-import com.ghost.todo.resources.copyright
-import com.ghost.todo.resources.createAccount
-import com.ghost.todo.resources.desktopHeroSubtitle
-import com.ghost.todo.resources.desktopHeroTitleOne
-import com.ghost.todo.resources.desktopHeroTitleTwo
-import com.ghost.todo.resources.emailLabel
-import com.ghost.todo.resources.emailPlaceholder
-import com.ghost.todo.resources.forgotPassword
-import com.ghost.todo.resources.google
-import com.ghost.todo.resources.ripple
-import com.ghost.todo.resources.loginSubtitle
-import com.ghost.todo.resources.loginTitle
-import com.ghost.todo.resources.newToVoid
-import com.ghost.todo.resources.orAccessWith
-import com.ghost.todo.resources.passwordLabel
-import com.ghost.todo.resources.passwordPlaceholder
-import com.ghost.todo.resources.person_1
-import com.ghost.todo.resources.person_2
-import com.ghost.todo.resources.person_3
-import com.ghost.todo.resources.user
+import com.ghost.todo.resources.*
 import com.ghost.todo.ui.components.CyberTextField
 import com.ghost.todo.ui.components.GradientText
 import com.ghost.todo.ui.components.PrimaryGlowButton
@@ -60,34 +39,7 @@ import com.ghost.todo.ui.contract.LoginEvent
 import com.ghost.todo.ui.contract.LoginState
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-//import todo.composeapp.generated.resources.*
 
-// ============================================================================
-// 1. STRING RESOURCES (Simulating KMP Res.strings for no hardcoded strings)
-// ============================================================================
-object ApspStringsV1 {
-    val appName = "Ether Focus"
-    val user = "User"
-    val loginTitle = "Welcome back"
-    val loginSubtitle = "Enter your credentials to continue your deep work session."
-    val emailLabel = "Email Address"
-    val emailPlaceholder = "name@domain.com"
-    val passwordLabel = "Password"
-    val passwordPlaceholder = "••••••••"
-    val forgotPassword = "Forgot?"
-    val continueButton = "Continue to Sanctuary"
-    val orAccessWith = "Or access with"
-    val google = "Google"
-    val apple = "Apple"
-    val newToVoid = "New to the void? "
-    val createAccount = "Create an account"
-    val activeInVoid = "Active in the void right now"
-    val desktopHeroTitleOne = "Return to your"
-    val desktopHeroTitleTwo = "Sanctuary of Flow."
-    val desktopHeroSubtitle =
-        "Minimize the noise. Maximize the intent. Join thousands of creators in the digital void where deep work becomes effortless."
-    val copyright = "© 2024 Ether Focus. Digital Sanctuary for Deep Work."
-}
 
 // ============================================================================
 // 2. MAIN RESPONSIVE SCREEN
@@ -96,7 +48,8 @@ object ApspStringsV1 {
 fun LoginScreen(
     state: LoginState, // From the LoginViewModel we built earlier
     onEvent: (LoginEvent) -> Unit,
-    onNavigateToRegister: () -> Unit
+    onNavigateToRegister: () -> Unit,
+    onNavigateToForget: () -> Unit,
 ) {
 
     // Responsive breakpoint detection
@@ -104,9 +57,9 @@ fun LoginScreen(
         val isDesktop = maxWidth > 800.dp
 
         if (isDesktop) {
-            DesktopLoginLayout(state, onEvent, onNavigateToRegister)
+            DesktopLoginLayout(state, onEvent, onNavigateToRegister, onNavigateToForget)
         } else {
-            MobileLoginLayout(state, onEvent, onNavigateToRegister)
+            MobileLoginLayout(state, onEvent, onNavigateToRegister, onNavigateToForget)
         }
     }
 }
@@ -118,14 +71,32 @@ fun LoginScreen(
 private fun DesktopLoginLayout(
     state: LoginState,
     onEvent: (LoginEvent) -> Unit,
-    onNavigateToRegister: () -> Unit
+    onNavigateToRegister: () -> Unit,
+    onNavigateToForget: () -> Unit,
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Row(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
         // Left Side: Atmospheric Branding (7/12 width approximation via weight)
         Box(
             modifier = Modifier
-                .weight(1.4f)
+                .weight(1.6f)
                 .fillMaxSize()
+                .drawWithContent {
+                    drawContent()
+
+                    // Fade out toward right side
+                    drawRect(
+                        brush = Brush.horizontalGradient(
+                            colors = listOf(
+                                Color.Transparent,
+                                colorScheme.surface
+                            ),
+                            startX = size.width * 0.7f, // where fade starts
+                            endX = size.width
+                        )
+                    )
+                }
         ) {
             // Simulated Atmospheric Image/Gradient Background
             Image(
@@ -157,6 +128,7 @@ private fun DesktopLoginLayout(
                         Brush.horizontalGradient(
                             colors = listOf(
                                 Color.Transparent,
+                                MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
                                 MaterialTheme.colorScheme.surface
                             )
                         )
@@ -283,12 +255,22 @@ private fun DesktopLoginLayout(
                 .background(MaterialTheme.colorScheme.surface),
             contentAlignment = Alignment.Center
         ) {
+
+            // Decorative Blob
+            Box(
+                modifier = Modifier.align(Alignment.TopEnd).size(320.dp)
+                    .blur(120.dp, edgeTreatment = BlurredEdgeTreatment.Unbounded).background(
+                        MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f), CircleShape
+                    )
+            )
+
             LoginForm(
                 state = state,
                 onEvent = onEvent,
                 onNavigateToRegister = onNavigateToRegister,
+                onNavigateToForget = onNavigateToForget,
                 modifier = Modifier
-                    .fillMaxWidth(0.65f) // Don't let it stretch completely to the edges
+                    .fillMaxWidth(0.70f) // Don't let it stretch completely to the edges
                     .padding(vertical = 32.dp)
             )
 
@@ -313,13 +295,22 @@ private fun DesktopLoginLayout(
 private fun MobileLoginLayout(
     state: LoginState,
     onEvent: (LoginEvent) -> Unit,
-    onNavigateToRegister: () -> Unit
+    onNavigateToRegister: () -> Unit,
+    onNavigateToForget: () -> Unit,
 ) {
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surface)
     ) {
+
+        // Decorative Blob
+        Box(
+            modifier = Modifier.align(Alignment.TopEnd).size(320.dp)
+                .blur(120.dp, edgeTreatment = BlurredEdgeTreatment.Unbounded).background(
+                    MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f), CircleShape
+                )
+        )
 
         // 🔥 Center container
         Box(
@@ -349,7 +340,8 @@ private fun MobileLoginLayout(
                     state = state,
                     onEvent = onEvent,
                     onNavigateToRegister = onNavigateToRegister,
-                    modifier = Modifier.fillMaxWidth()
+                    onNavigateToForget = onNavigateToForget,
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
         }
@@ -364,6 +356,7 @@ private fun LoginForm(
     state: LoginState,
     onEvent: (LoginEvent) -> Unit,
     onNavigateToRegister: () -> Unit,
+    onNavigateToForget: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
@@ -423,7 +416,9 @@ private fun LoginForm(
                     text = stringResource(Res.string.forgotPassword),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.clickable { /* Handle Forgot Password Effect */ }
+                    modifier = Modifier.clickable {
+                        onNavigateToForget()
+                    }
                 )
             }
         )
@@ -511,7 +506,7 @@ private fun LoginForm(
 @Composable
 private fun DesktopLoginPreview() {
     MaterialTheme {
-        LoginScreen(state = LoginState(), onEvent = {}, onNavigateToRegister = {})
+        LoginScreen(state = LoginState(), onEvent = {}, onNavigateToRegister = {}, {})
     }
 }
 
@@ -520,7 +515,7 @@ private fun DesktopLoginPreview() {
 @Composable
 private fun MobileLoginPreview() {
     MaterialTheme {
-        LoginScreen(state = LoginState(), onEvent = {}, onNavigateToRegister = {})
+        LoginScreen(state = LoginState(), onEvent = {}, onNavigateToRegister = {}, onNavigateToForget = {})
     }
 }
 

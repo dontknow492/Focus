@@ -3,11 +3,11 @@ package com.ghost.todo.ui.theme
 // https://materialkolor.com/?color_seed=FF6366F1&color_primary=FF6366F1&color_secondary=FF2DD4BF&color_tertiary=FFF472B6&color_neutral=FF121214&dark_mode=true&package_name=com.example.app
 
 
-
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import com.materialkolor.DynamicMaterialTheme
 import com.materialkolor.PaletteStyle
+import com.materialkolor.dynamiccolor.ColorSpec
 import com.materialkolor.rememberDynamicMaterialThemeState
 
 @Composable
@@ -17,13 +17,15 @@ fun AppTheme(
 ) {
     val dynamicThemeState = rememberDynamicMaterialThemeState(
         isDark = isDarkTheme,
-        style = PaletteStyle.TonalSpot,
         primary = Primary,
         secondary = Secondary,
         tertiary = Tertiary,
         neutral = Neutral,
+        specVersion = ColorSpec.SpecVersion.SPEC_2025,
+        style = PaletteStyle.Expressive, // Optional but recommended if you are using `MaterialExpressiveTheme`
+
     )
-    
+
     DynamicMaterialTheme(
         state = dynamicThemeState,
         animate = true,

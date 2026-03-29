@@ -1,6 +1,7 @@
 package com.ghost.todo.ui.contract
 
-// RegisterContract.kt
+import com.ghost.todo.data.model.enum.AuthProvider
+
 // 1. STATE
 data class RegisterState(
     val usernameInput: String = "",
@@ -13,19 +14,31 @@ data class RegisterState(
     val usernameError: String? = null,
     val emailError: String? = null,
     val passwordError: String? = null,
-    val confirmPasswordError: String? = null
+    val confirmPasswordError: String? = null,
+
+    // Optional: Track which provider is being used
+    val selectedProvider: AuthProvider? = null
 )
+
 
 // 2. INTENT (EVENT)
 sealed interface RegisterEvent {
+    // Form input events
     data class UsernameChanged(val username: String) : RegisterEvent
     data class EmailChanged(val email: String) : RegisterEvent
     data class PasswordChanged(val password: String) : RegisterEvent
     data class ConfirmPasswordChanged(val password: String) : RegisterEvent
+    data object ClearErrors : RegisterEvent
 
+    // Registration submission events
     data object SubmitRegistration : RegisterEvent
     data class SubmitGoogleRegistration(val idToken: String) : RegisterEvent
-    data object ClearErrors : RegisterEvent
+    data object SubmitAppleRegistration : RegisterEvent
+    data object SubmitFacebookRegistration : RegisterEvent
+    data object SubmitTwitterRegistration : RegisterEvent
+    data object SubmitGitHubRegistration : RegisterEvent
+
+    // Navigation events
     data object NavigateToLoginClicked : RegisterEvent
 }
 
@@ -35,4 +48,5 @@ sealed interface RegisterEffect {
     data object NavigateBackToLogin : RegisterEffect
     data class ShowError(val message: String) : RegisterEffect
     data class ShowWarning(val message: String) : RegisterEffect
+    data object NavigateToSetUsername : RegisterEffect  // For social logins that need username
 }
